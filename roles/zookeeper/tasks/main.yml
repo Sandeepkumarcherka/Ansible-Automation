@@ -1,0 +1,32 @@
+---
+- name: Install required packages
+  yum:
+    name:
+      - java-11-openjdk
+      - wget
+    state: present
+
+- name: Download Zookeeper
+  get_url:
+    url: "{{ zookeeper_download_url }}"
+    dest: "/tmp/zookeeper.tgz"
+
+- name: Extract Zookeeper
+  ansible.builtin.unarchive:
+    src: "/tmp/zookeeper.tgz"
+    dest: "{{ zookeeper_install_dir }}"
+    remote_src: yes
+
+- name: Configure Zookeeper properties
+  template:
+    src: "zoo.cfg.j2"
+    dest: "{{ zookeeper_install_dir }}/conf/zoo.cfg"
+
+- name: Start Zookeeper Service
+  shell: "nohup {{ zookeeper_install_dir }}/bin/zkServer.sh start &"
+  async: 0
+  poll: 0
+  ignore_errors: yes
+  notify:
+    - Restart Zookeeper
+

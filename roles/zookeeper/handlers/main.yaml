@@ -1,0 +1,4 @@
+---
+- name: Restart Zookeeper
+  shell: "nohup {{ zookeeper_install_dir }}/bin/zkServer.sh restart &"
+

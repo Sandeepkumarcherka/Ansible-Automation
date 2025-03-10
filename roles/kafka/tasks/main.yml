@@ -1,0 +1,32 @@
+---
+- name: Install required packages
+  yum:
+    name:
+      - java-11-openjdk
+      - wget
+    state: present
+
+- name: Download Kafka
+  get_url:
+    url: "{{ kafka_download_url }}"
+    dest: "/tmp/kafka.tgz"
+
+- name: Extract Kafka
+  ansible.builtin.unarchive:
+    src: "/tmp/kafka.tgz"
+    dest: "{{ kafka_install_dir }}"
+    remote_src: yes
+
+- name: Configure Kafka properties
+  template:
+    src: "server.properties.j2"
+    dest: "{{ kafka_install_dir }}/config/server.properties"
+
+- name: Start Kafka Service
+  shell: "nohup {{ kafka_install_dir }}/bin/kafka-server-start.sh {{ kafka_install_dir }}/config/server.properties &"
+  async: 0
+  poll: 0
+  ignore_errors: yes
+  notify:
+    - Restart Kafka
+

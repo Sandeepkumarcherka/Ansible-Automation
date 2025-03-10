@@ -1,0 +1,59 @@
+- name: Check if Java is installed
+  ansible.builtin.stat:
+    path: "/home/ec2-user/java/bin/java"
+  register: java_installed
+
+- name: Install Java if not present
+  when: not java_installed.stat.exists
+  block:
+    - name: Download Java
+      ansible.builtin.get_url:
+        url: "https://download.oracle.com/java/17/archive/jdk-17.0.9_linux-x64_bin.tar.gz"
+        dest: "/tmp/java.tar.gz"
+        mode: '0755'
+
+    - name: Ensure Java directory exists
+      ansible.builtin.file:
+        path: "/home/ec2-user/java"
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Extract Java
+      ansible.builtin.unarchive:
+        src: "/tmp/java.tar.gz"
+        dest: "/home/ec2-user/java"
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+      become: yes
+
+- name: Ensure JAVA_HOME is set in Profile
+  ansible.builtin.lineinfile:
+    path: /home/ec2-user/.bash_profile
+    line: 'export JAVA_HOME=/home/ec2-user/java'
+    state: present
+  become: yes
+
+- name: Ensure PATH is set in Profile
+  ansible.builtin.lineinfile:
+    path: /home/ec2-user/.bash_profile
+    line: 'export PATH=$JAVA_HOME/bin:$PATH'
+    state: present
+  become: yes
+
+- name: Reload Profile for the current session
+  ansible.builtin.shell: |
+    source /home/ec2-user/.bash_profile
+  args:
+    executable: /bin/bash
+  become: yes
+
+- name: Verify Java Installation
+  ansible.builtin.command: "/home/ec2-user/java/bin/java -version"
+  register: java_version
+  changed_when: false
+
+- name: Display Java Version
+  ansible.builtin.debug:
+    msg: "{{ java_version.stderr }}"
+

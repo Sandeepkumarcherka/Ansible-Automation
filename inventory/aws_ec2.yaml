@@ -1,0 +1,18 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1  # Change this to your AWS region
+
+filters:
+  tag:Role:
+    - kafka_nodes
+    - zookeeper_nodes
+
+keyed_groups:
+  - key: tags.Role
+    prefix: ""  # This will ensure the correct group names
+
+hostnames:
+  - private-ip-address
+
+compose:
+  ansible_host: private_ip_address

@@ -1,0 +1,4 @@
+---
+- name: Restart Kafka
+  shell: "nohup {{ kafka_install_dir }}/bin/kafka-server-start.sh {{ kafka_install_dir }}/config/server.properties &"
+
