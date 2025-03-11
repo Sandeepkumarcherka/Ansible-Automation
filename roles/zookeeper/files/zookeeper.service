@@ -1,0 +1,15 @@
+[Unit]
+Description=Apache Zookeeper
+After=network.target
+
+[Service]
+Type=forking
+User=ec2-user
+Group=ec2-user
+ExecStart={{ zookeeper_install_dir }}/bin/zookeeper-server-start -daemon /home/ec2-user/zookeeper/conf/zoo.cfg
+ExecStop={{ zookeeper_install_dir }}/bin/zookeeper-server-stop
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

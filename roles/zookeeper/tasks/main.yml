@@ -1,32 +1,85 @@
----
-- name: Install required packages
-  yum:
-    name:
-      - java-11-openjdk
-      - wget
-    state: present
-
 - name: Download Zookeeper
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ zookeeper_download_url }}"
-    dest: "/tmp/zookeeper.tgz"
+    dest: "/tmp/zookeeper.tar.gz"
+    mode: '0644'
+
+- name: Create Zookeeper data directory
+  ansible.builtin.file:
+    path: "{{ zookeeper_data_dir }}"
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+  become: yes
+
+- name: Create Zookeeper installation directory
+  ansible.builtin.file:
+    path: "{{ zookeeper_install_dir }}"
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+  become: yes
+
 
 - name: Extract Zookeeper
   ansible.builtin.unarchive:
-    src: "/tmp/zookeeper.tgz"
+    src: "/tmp/zookeeper.tar.gz"
     dest: "{{ zookeeper_install_dir }}"
     remote_src: yes
+    extra_opts: [--strip-components=1]
+  become: yes
 
-- name: Configure Zookeeper properties
-  template:
+- name: Create myid file
+  ansible.builtin.copy:
+    dest: "{{ zookeeper_data_dir }}/myid"
+    content: "{{ groups['_zookeeper_nodes'].index(inventory_hostname) + 1 }}"
+    mode: '0644'
+  become: yes
+
+- name: Create Zookeeper configuration directory
+  ansible.builtin.file:
+    path: "{{ zookeeper_conf_dir }}"
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+  become: yes
+
+- name: Create Zookeeper log directory
+  ansible.builtin.file:
+    path: "{{ zookeeper_log_dir }}"
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+  become: yes
+
+- name: Generate Zookeeper configuration
+  ansible.builtin.template:
     src: "zoo.cfg.j2"
     dest: "{{ zookeeper_install_dir }}/conf/zoo.cfg"
+    mode: '0644'
+  notify: Restart Zookeeper
 
-- name: Start Zookeeper Service
-  shell: "nohup {{ zookeeper_install_dir }}/bin/zkServer.sh start &"
-  async: 0
-  poll: 0
-  ignore_errors: yes
-  notify:
-    - Restart Zookeeper
+- name: Deploy systemd service file
+  ansible.builtin.copy:
+    src: "zookeeper.service"
+    dest: "/etc/systemd/system/zookeeper.service"
+    mode: '0644'
+  become: yes
+  notify: Restart Zookeeper
+
+- name: Reload systemd to apply changes
+  ansible.builtin.command:
+    cmd: systemctl daemon-reload
+  become: yes
+
+- name: Enable and start Zookeeper
+  ansible.builtin.service:
+    name: zookeeper
+    enabled: yes
+    state: started
+  become: yes
 

@@ -1,4 +1,5 @@
----
 - name: Restart Zookeeper
-  shell: "nohup {{ zookeeper_install_dir }}/bin/zkServer.sh restart &"
+  ansible.builtin.service:
+    name: zookeeper
+    state: restarted
 

@@ -1,5 +1,5 @@
 - name: Install Zookeeper
-  hosts: "{{ target}}"
+  hosts: "{{ target }}"
   roles:
     - zookeeper
 
