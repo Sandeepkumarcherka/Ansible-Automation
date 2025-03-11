@@ -1,16 +1,15 @@
 [Unit]
-Description=Apache Zookeeper
+Description=Apache Zookeeper Server
 After=network.target
 
 [Service]
 Type=simple
 User=ec2-user
 Group=ec2-user
-ExecStart={{ zookeeper_install_dir }}/bin/zkserver.sh start -daemon /home/ec2-user/zookeeper/conf/zoo.cfg
-ExecStop={{ zookeeper_install_dir }}/bin/zkserver.sh stop
-Restart=on-failure
-RestartSec=5
+ExecStart=/home/ec2-user/zookeeper/bin/zkServer.sh start-foreground
+ExecStop=/home/ec2-user/zookeeper/bin/zkServer.sh stop
+Restart=always
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
-
