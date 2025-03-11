@@ -1,7 +1,7 @@
 zookeeper_version: "7.2.0"
 zookeeper_versions: "7.2"
 zookeeper_download_url: "https://packages.confluent.io/archive/{{ zookeeper_versions }}/confluent-{{ zookeeper_version }}.tar.gz"
-zookeeper_install_dir: "/home/ec2-user/zookeeper/data"
+zookeeper_install_dir: "/home/ec2-user/zookeeper"
 zookeeper_log_dir: "/home/ec2-user/zookeeper/logs"
 zookeeper_conf_dir: "/home/ec2-user/zookeeper/conf"
 zookeeper_data_dir: "/var/lib/zookeeper"
