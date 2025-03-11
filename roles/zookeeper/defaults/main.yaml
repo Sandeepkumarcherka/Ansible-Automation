@@ -5,7 +5,7 @@ zookeeper_download_url: "https://downloads.apache.org/zookeeper/stable/apache-zo
 zookeeper_install_dir: "/home/ec2-user/zookeeper"
 zookeeper_log_dir: "/home/ec2-user/zookeeper/logs"
 zookeeper_conf_dir: "/home/ec2-user/zookeeper/conf"
-zookeeper_data_dir: "/var/lib/zookeeper"
+zookeeper_data_dir: "/var/lib/zookeeper/data"
 zookeeper_client_port: 2181
 zookeeper_tick_time: 2000
 zookeeper_init_limit: 5
